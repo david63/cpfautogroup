@@ -156,7 +156,7 @@ class cpf_date extends base
 						$min_calc = time() - ($group_rules[$key]['autogroups_min_value'] * constants::CPF_MINUTE);
 					break;
 
-				   	case 'HOUR':
+					case 'HOUR':
 						$max_calc = time() - ($group_rules[$key]['autogroups_max_value'] * constants::CPF_HOUR);
 						$min_calc = time() - ($group_rules[$key]['autogroups_min_value'] * constants::CPF_HOUR);
 					break;
@@ -197,7 +197,7 @@ class cpf_date extends base
 
 				if (!empty($user_data) && array_key_exists($row['user_id'], $user_data))
 				{
-	   				$data_row[$cpf_field] = ($data_row[$cpf_field] > $user_data[$row['user_id']][$cpf_field]) ? $data_row[$cpf_field] : $user_data[$row['user_id']][$cpf_field];
+					$data_row[$cpf_field] = ($data_row[$cpf_field] > $user_data[$row['user_id']][$cpf_field]) ? $data_row[$cpf_field] : $user_data[$row['user_id']][$cpf_field];
 				}
 				$user_data[$row['user_id']]	= $data_row;
 			}

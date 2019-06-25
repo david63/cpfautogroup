@@ -130,7 +130,7 @@ class listener implements EventSubscriberInterface
 				}
 				else
 				{
-		   			$this->autogroup_manager->check_condition('david63.cpfautogroup.autogroups.type.cpf_' . $field_type);
+					$this->autogroup_manager->check_condition('david63.cpfautogroup.autogroups.type.cpf_' . $field_type);
 				}
 			}
 			else

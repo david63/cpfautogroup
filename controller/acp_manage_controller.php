@@ -9,7 +9,6 @@
 
 namespace david63\cpfautogroup\controller;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\user;
@@ -99,7 +98,7 @@ class acp_manage_controller implements acp_manage_interface
 
 		// Start initial var setup
 		$action				= $this->request->variable('action', '');
-	   	$agree				= ($action == 'agree') ? true : false;
+		$agree				= ($action == 'agree') ? true : false;
 		$cpf_cron			= $this->request->variable('cpf_cron', 0);
 		$cpf_cron_time		= $this->request->variable('cpf_cron_time', 24);
 		$cpf_date_type		= $this->request->variable('cpf_date_type', '');
@@ -121,7 +120,7 @@ class acp_manage_controller implements acp_manage_interface
 		}
 
 		// Is the form being submitted
-		if($submit || $agree)
+		if ($submit || $agree)
 		{
 			// Let's do some validation of the input data
 			// Has a CPF field name been selected?
@@ -261,7 +260,7 @@ class acp_manage_controller implements acp_manage_interface
 					'CPF_SUMMARY_USERS'			=> ($row['cpf_users']) ?  $this->language->lang('SINGLE') :  $this->language->lang('ALL'),
 					'CPF_SUMMARY_EVENT_CRON'	=> (!$row['cpf_cron']) ? $this->language->lang('E') . $this->get_lang_var('cpf_event_trigger', $row['cpf_event_trigger']) : $this->language->lang('C') . $this->language->lang('EVERY') . ' ' . $row['cpf_cron_time'] . ' ' . $this->language->lang('HOURS'),
 					'CPF_SUMMARY_CONDITIONS'	=> $options,
-		   		));
+				));
 			}
 
 			$this->db->sql_freeresult($result);
