@@ -16,6 +16,7 @@ use phpbb\language\language;
 use phpbb\autogroups\conditions\type\base;
 
 use david63\cpfautogroup\core\functions;
+
 //use david63\cpfautogroup\core\constants;
 
 /**
