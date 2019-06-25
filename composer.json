@@ -1,0 +1,38 @@
+{
+	"name": "david63/cpfautogroup",
+	"type": "phpbb-extension",
+	"description": "Adds CPF functionality for Auto Groups.",
+	"version": "2.1.0-rc3",
+	"time": "2019-02-01",
+	"keywords": [
+		"phpbb",
+		"extension",
+		"autogroup",
+		"CPF"
+	],
+	"license": "GPL-2.0-only",
+	"authors": [
+		{
+			"name": "David Wood",
+			"role": "Developer"
+		},
+		{
+			"name": "Matt Friedman",
+			"role": "Consultant"
+		}
+    ],
+	"require": {
+		"php": ">=5.4.7"
+	},
+	"extra": {
+		"display-name": "[DEV] CPFs for Auto Groups",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.2.0"
+		},
+		"version-check": {
+        	"host": "version.phpbbdev.space",
+        	"directory": "/3.2",
+        	"filename": "/cpf_autogroup_version_file.json"
+    	}
+	}
+}

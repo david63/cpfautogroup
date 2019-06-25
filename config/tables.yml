@@ -1,0 +1,2 @@
+parameters:
+    david63.cpfautogroup.tables.autogroups_cpf_data: %core.table_prefix%autogroups_cpf_data

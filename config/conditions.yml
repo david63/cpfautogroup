@@ -1,0 +1,27 @@
+services:
+    david63.cpfautogroup.autogroups.type.cpf_date:
+        class: david63\cpfautogroup\conditions\type\cpf_date
+        shared: false
+        parent: phpbb.autogroups.type.base
+        arguments:
+            - '@david63.cpfautogroup.core.functions'
+        tags:
+            - { name: phpbb.autogroups.type }
+
+    david63.cpfautogroup.autogroups.type.cpf_int:
+        class: david63\cpfautogroup\conditions\type\cpf_int
+        shared: false
+        parent: phpbb.autogroups.type.base
+        arguments:
+            - '@david63.cpfautogroup.core.functions'
+        tags:
+            - { name: phpbb.autogroups.type }
+
+    david63.cpfautogroup.autogroups.type.cpf_bool:
+        class: david63\cpfautogroup\conditions\type\cpf_bool
+        shared: false
+        parent: phpbb.autogroups.type.base
+        arguments:
+            - '@david63.cpfautogroup.core.functions'
+        tags:
+            - { name: phpbb.autogroups.type }

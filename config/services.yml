@@ -1,0 +1,41 @@
+imports:
+    - { resource: conditions.yml }
+    - { resource: tables.yml }
+
+services:
+    david63.cpfautogroup.listener:
+        class: david63\cpfautogroup\event\listener
+        arguments:
+            - '@david63.cpfautogroup.core.functions'
+            - '@?phpbb.autogroups.manager'
+        tags:
+            - { name: event.listener }
+
+    david63.cpfautogroup.acp.manage.controller:
+        class: david63\cpfautogroup\controller\acp_manage_controller
+        arguments:
+            - '@request'
+            - '@template'
+            - '@user'
+            - '@log'
+            - '@language'
+            - '@dbal.conn'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%david63.cpfautogroup.tables.autogroups_cpf_data%'
+
+    david63.cpfautogroup.cron.task.cpf_autogroups:
+        class: david63\cpfautogroup\cron\cpf_autogroups
+        arguments:
+            - '@phpbb.autogroups.manager'
+            - '@david63.cpfautogroup.core.functions'
+        calls:
+            - [set_name, [cron.task.cpf_autogroups]]
+        tags:
+            - { name: cron.task }
+
+    david63.cpfautogroup.core.functions:
+        class: david63\cpfautogroup\core\functions
+        arguments:
+            - '@dbal.conn'
+            - '%david63.cpfautogroup.tables.autogroups_cpf_data%'
