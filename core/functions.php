@@ -9,157 +9,82 @@
 
 namespace david63\cpfautogroup\core;
 
-use phpbb\db\driver\driver_interface;
+use phpbb\extension\manager;
 
 /**
-* CPF auto groups functions
+* functions
 */
 class functions
 {
-	/** @var \phpbb\db\driver\driver_interface */
-	protected $db;
-
-	/** @var string The database table for CPF auto group data */
-	protected $autogroups_cpf_data_table;
+	/** @var \phpbb\extension\manager */
+	protected $phpbb_extension_manager;
 
 	/**
-	* Constructor for CPF functions
+	* Constructor for functions
 	*
-	* @param \phpbb_db_driver	$db							The db connection
-	* @param string				$autogroups_cpf_data_table	Name of the table used to store CPF auto group data
+	* @param \phpbb\extension\manager 	$phpbb_extension_manager	Extension manager
 	*
 	* @access public
 	*/
-	public function __construct(driver_interface $db, $autogroups_cpf_data_table)
+	public function __construct(manager $phpbb_extension_manager)
 	{
-		$this->db 							= $db;
-		$this->autogroups_cpf_data_table 	= $autogroups_cpf_data_table;
+		$this->ext_manager	= $phpbb_extension_manager;
+
+		$this->namespace	= __NAMESPACE__;
 	}
 
 	/**
-	* Get CPF data
+	* Get the extension's namespace
 	*
-	* @return string field data
+	* @return $extension_name
 	* @access public
 	*/
-	public function cpf_data_get($get_field, $field_type, $options = false)
+	public function get_ext_namespace($mode = 'php')
 	{
-		$field_use = ($options) ? 'cpf_options' : $get_field;
+		// Let's extract the extension name from the namespace
+		$extension_name = substr($this->namespace, 0, -(strlen($this->namespace) - strrpos($this->namespace, '\\')));
 
-		$sql = 'SELECT *
-			FROM ' . $this->autogroups_cpf_data_table . '
-			WHERE cpf_field_type = "' . $field_type . '"';
-
-		$result = $this->db->sql_query($sql);
-		$field	= $this->db->sql_fetchfield($field_use);
-
-		$this->db->sql_freeresult($result);
-
-		if ($get_field == 'cpf_field_name' && !$field)
+		// Now format the extension name
+		switch ($mode)
 		{
-			trigger_error($this->language->lang('CPF_NOT_CONFIGURED') . adm_back_link($this->u_action), E_USER_WARNING);
-		}
-		else if ($field_use == 'cpf_options')
-		{
-			$options	= json_decode($field, true);
-			$field 		= $options[$get_field];
+			case 'php':
+				$extension_name = str_replace('\\', '/', $extension_name);
+			break;
+
+			case 'twig':
+				$extension_name = str_replace('\\', '_', $extension_name);
+			break;
 		}
 
-		return $field;
+		return $extension_name;
 	}
 
 	/**
-	* Get CPF data for CPF autogroups
+	* Check if there is an updated version of the extension
 	*
-	* @return array cron data
+	* @return $new_version
 	* @access public
 	*/
-	public function get_cpf_event_data($trigger)
+	public function version_check()
 	{
-		$sql = 'SELECT *
-			FROM ' . $this->autogroups_cpf_data_table . "
-			WHERE cpf_event_trigger = $trigger";
+		$md_manager 	= $this->ext_manager->create_extension_metadata_manager($this->get_ext_namespace());
+		$versions 		= $this->ext_manager->version_check($md_manager, true);
+		$new_version	= (array_key_exists('current', $versions) ? $versions['current'] : false);
 
-		$result = $this->db->sql_query($sql);
-
-		$event_data = array();
-		$row = $this->db->sql_fetchrow($result);
-		if ($row)
-		{
-			$event_data = array(
-				'cpf_cron' 			=> $row['cpf_cron'],
-				'cpf_cron_time' 	=> $row['cpf_cron_time'],
-				'cpf_event_trigger'	=> $row['cpf_event_trigger'],
-				'cpf_field_type'	=> $row['cpf_field_type'],
-				'cpf_users'			=> $row['cpf_users'],
-			);
-		}
-
-		$this->db->sql_freeresult($result);
-
-		return $event_data;
+		return $new_version;
 	}
 
 	/**
-	* Get cron status for CPF autogroups
+	* Get the version number of this extension
 	*
-	* @return array cron data
+	* @return $meta_data
 	* @access public
 	*/
-	public function get_cron_status()
+	public function get_this_version()
 	{
-		$sql = 'SELECT *
-			FROM ' . $this->autogroups_cpf_data_table;
+		$md_manager = $this->ext_manager->create_extension_metadata_manager($this->get_ext_namespace());
+		$meta_data	= $md_manager->get_metadata('version');
 
-		$result = $this->db->sql_query($sql);
-
-		$cron_status = array();
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$cron_status[] = array(
-				'cpf_cron' 			=> $row['cpf_cron'],
-				'cpf_cron_time' 	=> $row['cpf_cron_time'],
-				'cpf_event_trigger'	=> $row['cpf_event_trigger'],
-				'cpf_field_type'	=> $row['cpf_field_type'],
-				'cpf_users'			=> $row['cpf_users'],
-			);
-		}
-
-		$this->db->sql_freeresult($result);
-
-		return $cron_status;
-	}
-
-	/**
-	* Get the CPF conditions
-	*
-	* @return array conditions
-	* @access public
-	*/
-	public function get_cpf_conditions($type)
-	{
-		$sql_array  = '';
-		// Is there a conditional group?
-		if ($this->cpf_data_get('cpf_group_use', $type, true))
-		{
-			$sql_array .= ' AND ' . $this->db->sql_in_set('ug.group_id', $this->cpf_data_get('cpf_group', $type, true));
-		}
-
-		return $sql_array;
-	}
-
-	/**
-	* Update the Cron run time
-	*
-	* @return array conditions
-	* @access public
-	*/
-	public function cpf_cron_update($type)
-	{
-		$sql = 'UPDATE ' . $this->autogroups_cpf_data_table .'
-			SET cpf_cron_time = ' . time() . '
-			WHERE cpf_field_type = ' . $type;
-
-		$this->db->sql_query($sql);
+		return $meta_data;
 	}
 }

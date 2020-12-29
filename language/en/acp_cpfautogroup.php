@@ -17,7 +17,7 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = array();
+	$lang = [];
 }
 
 // DEVELOPERS PLEASE NOTE
@@ -79,6 +79,12 @@ $lang = array_merge($lang, array(
 
 	'INVALID_FIELD_TYPE'				=> 'The selected field type is not currently implemented.',
 
+	'NON_ACTIVE_CPF'					=> 'Non active users',
+	'CPF_NON_ACTIVE_PERIOD'				=> 'Non active',
+	'CPF_NON_ACTIVE_PERIOD_EXPLAIN'		=> 'This option will select users who have not been active on the board for the selected time period.',
+	'CPF_NON_POST_PERIOD'				=> 'Non post',
+	'CPF_NON_POST_PERIOD_EXPLAIN'		=> 'This option will select users who have not posted on the board for the selected time period.',
+	'NON_POST_CPF'						=> 'Non post users',
 	'NONE'								=> 'None',
 	'NOTES'								=> 'Notes - please read',
 	'NOTES_BOOLEAN'						=> '<strong>Notes about boolean CPFs:</strong><br><br>There are no specific requirements for this Custom Profile Field type.',

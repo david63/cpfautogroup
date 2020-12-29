@@ -1,12 +1,15 @@
 imports:
     - { resource: conditions.yml }
     - { resource: tables.yml }
+    - { resource: phpbb_tables.yml }
+    - { resource: cpf_constants.yml }
 
 services:
     david63.cpfautogroup.listener:
         class: david63\cpfautogroup\event\listener
         arguments:
-            - '@david63.cpfautogroup.core.functions'
+            - '@david63.cpfautogroup.core.cpf_functions'
+            - '%cpf_constants%'
             - '@?phpbb.autogroups.manager'
         tags:
             - { name: event.listener }
@@ -23,19 +26,29 @@ services:
             - '%core.root_path%'
             - '%core.php_ext%'
             - '%david63.cpfautogroup.tables.autogroups_cpf_data%'
+            - '@david63.cpfautogroup.core.functions'
+            - '%tables%'
 
     david63.cpfautogroup.cron.task.cpf_autogroups:
         class: david63\cpfautogroup\cron\cpf_autogroups
         arguments:
             - '@phpbb.autogroups.manager'
-            - '@david63.cpfautogroup.core.functions'
+            - '@david63.cpfautogroup.core.cpf_functions'
         calls:
             - [set_name, [cron.task.cpf_autogroups]]
         tags:
             - { name: cron.task }
 
-    david63.cpfautogroup.core.functions:
-        class: david63\cpfautogroup\core\functions
+    david63.cpfautogroup.core.cpf_functions:
+        class: david63\cpfautogroup\core\cpf_functions
         arguments:
             - '@dbal.conn'
             - '%david63.cpfautogroup.tables.autogroups_cpf_data%'
+
+    david63.cpfautogroup.core.functions:
+        class: david63\cpfautogroup\core\functions
+        arguments:
+            - '@ext.manager'
+
+    _defaults:
+        public: true

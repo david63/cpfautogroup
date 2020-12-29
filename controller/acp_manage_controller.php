@@ -15,7 +15,7 @@ use phpbb\user;
 use phpbb\log\log;
 use phpbb\language\language;
 use phpbb\db\driver\driver_interface;
-use david63\cpfautogroup\core\constants;
+use david63\cpfautogroup\core\functions;
 
 /**
 * Admin manage controller
@@ -49,26 +49,34 @@ class acp_manage_controller implements acp_manage_interface
 	/** @var string The database table for CPF auto group data */
 	protected $autogroups_cpf_data_table;
 
+	/** @var \david63\cpfautogroup\core\functions */
+	protected $functions;
+
+	/** @var string phpBB tables */
+	protected $tables;
+
 	/** @var string Custom form action */
 	protected $u_action;
 
 	/**
 	* Constructor for admin manage controller
 	*
-	* @param \phpbb\request\request		$request					Request object
-	* @param \phpbb\template\template	$template					Template object
-	* @param \phpbb\user				$user						User object
-	* @param \phpbb\log\log				$log						Log object
-	* @param \phpbb\language\language	$language					Language object
-	* @param \phpbb_db_driver			$db							The db connection
-	* @param string						$phpbb_root_path			phpBB root path
-	* @param string						$php_ext            		phpBB file extension
-	* @param string						$autogroups_cpf_data_table	Name of the table used to store CPF auto group data
+	* @param \phpbb\request\request					$request					Request object
+	* @param \phpbb\template\template				$template					Template object
+	* @param \phpbb\user							$user						User object
+	* @param \phpbb\log\log							$log						Log object
+	* @param \phpbb\language\language				$language					Language object
+	* @param \phpbb_db_driver						$db							The db connection
+	* @param string									$phpbb_root_path			phpBB root path
+	* @param string									$php_ext            		phpBB file extension
+	* @param string									$autogroups_cpf_data_table	Name of the table used to store CPF auto group data
+	* @param \david63\cpfautogroup\core\functions	$functions					Functions for the extension
+	* @param array									$tables						phpBB db tables
 	*
 	* @return \david63\cpfautogroup\controller\acp_manage_controller
 	* @access public
 	*/
-	public function __construct(request $request, template $template, user $user, log $log, language $language, driver_interface $db, $phpbb_root_path, $php_ext, $autogroups_cpf_data_table)
+	public function __construct(request $request, template $template, user $user, log $log, language $language, driver_interface $db, $phpbb_root_path, $php_ext, $autogroups_cpf_data_table, functions $functions, $tables)
 	{
 		$this->request						= $request;
 		$this->template						= $template;
@@ -79,6 +87,8 @@ class acp_manage_controller implements acp_manage_interface
 		$this->phpbb_root_path				= $phpbb_root_path;
 		$this->php_ext						= $php_ext;
 		$this->autogroups_cpf_data_table 	= $autogroups_cpf_data_table;
+		$this->functions					= $functions;
+		$this->tables						= $tables;
 	}
 
 	/**
@@ -90,25 +100,29 @@ class acp_manage_controller implements acp_manage_interface
 	public function display_options()
 	{
 		// Add the language files
-		$this->language->add_lang('acp_cpfautogroup', 'david63/cpfautogroup');
+		$this->language->add_lang('acp_cpfautogroup', $this->functions->get_ext_namespace());
 
 		// Create a form key for preventing CSRF attacks
 		$form_key = 'cpfautogroup';
 		add_form_key($form_key);
 
+		$back = false;
+
 		// Start initial var setup
-		$action				= $this->request->variable('action', '');
-		$agree				= ($action == 'agree') ? true : false;
-		$cpf_cron			= $this->request->variable('cpf_cron', 0);
-		$cpf_cron_time		= $this->request->variable('cpf_cron_time', 24);
-		$cpf_date_type		= $this->request->variable('cpf_date_type', '');
-		$cpf_event_trigger	= $this->request->variable('cpf_event_trigger', 0);
-		$cpf_field_name 	= $this->request->variable('cpf_field_name', '');
-		$cpf_group 			= $this->request->variable('cpf_group', 0);
-		$cpf_group_use 		= $this->request->variable('cpf_group_use', 0);
-		$cpf_users 			= $this->request->variable('cpf_users', 0);
-		$field_type 		= $this->get_field_type($this->request->variable('cpf_field_name', ''));
-		$submit				= ($this->request->is_set_post('submit')) ? true : false;
+		$action					= $this->request->variable('action', '');
+		$agree					= ($action == 'agree') ? true : false;
+		$cpf_cron				= $this->request->variable('cpf_cron', 0);
+		$cpf_cron_time			= $this->request->variable('cpf_cron_time', 24);
+		$cpf_date_type			= $this->request->variable('cpf_date_type', '');
+		$cpf_event_trigger		= $this->request->variable('cpf_event_trigger', 0);
+		$cpf_field_name 		= $this->request->variable('cpf_field_name', '');
+		$cpf_group 				= $this->request->variable('cpf_group', 0);
+		$cpf_group_use 			= $this->request->variable('cpf_group_use', 0);
+		$cpf_non_active_period 	= $this->request->variable('cpf_non_active_period', 0);
+		$cpf_non_post_period 	= $this->request->variable('cpf_non_post_period', 0);
+		$cpf_users 				= $this->request->variable('cpf_users', 0);
+		$field_type 			= $this->get_field_type($this->request->variable('cpf_field_name', ''));
+		$submit					= ($this->request->is_set_post('submit')) ? true : false;
 
 		// Is the submitted form is valid
 		if ($submit)
@@ -141,7 +155,7 @@ class acp_manage_controller implements acp_manage_interface
 				trigger_error($this->language->lang('INVALID_FIELD_TYPE') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			// If date type field is a date interval selected?
+			// If date type field is selected has a date interval selected?
 			if ($field_type == 'date' && $cpf_date_type == 'NONE')
 			{
 				trigger_error($this->language->lang('DATE_TYPE_ERROR') . adm_back_link($this->u_action), E_USER_WARNING);
@@ -170,16 +184,18 @@ class acp_manage_controller implements acp_manage_interface
 				else
 				{
 					confirm_box(false, $this->language->lang('CPF_FIELD_TYPE_EXISTS'), build_hidden_fields(array(
-						'action'			=> 'agree',
-						'cpf_cron'			=> $cpf_cron,
-						'cpf_cron_time'		=> $cpf_cron_time,
-						'cpf_date_type'		=> $cpf_date_type,
-						'cpf_event_trigger'	=> $cpf_event_trigger,
-						'cpf_field_name'	=> $cpf_field_name,
-						'cpf_field_type'	=> $field_type,
-						'cpf_group'			=> $cpf_group,
-						'cpf_group_use'		=> $cpf_group_use,
-						'cpf_users'			=> $cpf_users,
+						'action'				=> 'agree',
+						'cpf_cron'				=> $cpf_cron,
+						'cpf_cron_time'			=> $cpf_cron_time,
+						'cpf_date_type'			=> $cpf_date_type,
+						'cpf_event_trigger'		=> $cpf_event_trigger,
+						'cpf_field_name'		=> $cpf_field_name,
+						'cpf_field_type'		=> $field_type,
+						'cpf_group'				=> $cpf_group,
+						'cpf_group_use'			=> $cpf_group_use,
+						'cpf_non_active_period'	=> $cpf_non_active_period,
+						'cpf_non_post_period'	=> $cpf_non_post_period,
+						'cpf_users'				=> $cpf_users,
 					)));
 				}
 			}
@@ -202,14 +218,6 @@ class acp_manage_controller implements acp_manage_interface
 				trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 			}
 		}
-
-		// Template vars for header panel
-		$this->template->assign_vars(array(
-			'HEAD_TITLE'		=> $this->language->lang('CPF_AUTOGROUP'),
-			'HEAD_DESCRIPTION'	=> $this->language->lang('CPF_AUTOGROUP_MANAGE_EXPLAIN'),
-
-			'VERSION_NUMBER'	=> constants::CPF_AUTOGROUP_VERSION,
-		));
 
 		// Create the CPF summary
 		$summary = false;
@@ -235,7 +243,7 @@ class acp_manage_controller implements acp_manage_interface
 
 			// Get the CPF summary data
 			$sql = 'SELECT c.*, pf.field_name, pl.lang_name
-				FROM ' . $this->autogroups_cpf_data_table . ' c, ' . PROFILE_FIELDS_TABLE . ' pf, ' . PROFILE_LANG_TABLE . ' pl, ' . LANG_TABLE . ' l
+				FROM ' . $this->autogroups_cpf_data_table . ' c, ' . $this->tables['profile_fields'] . ' pf, ' . $this->tables['profile_lang'] . ' pl, ' . $this->tables['lang'] . ' l
 				WHERE c.cpf_field_name = pf.field_name
 					AND pf.field_id  = pl.field_id
 					AND pl.lang_id = l.lang_id
@@ -248,10 +256,12 @@ class acp_manage_controller implements acp_manage_interface
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				// Get the options for this row
-				$get_options = json_decode($row['cpf_options'], true);
+				$options 		= '';
+				$get_options	= json_decode($row['cpf_options'], true);
 
-				$options = '';
 				$options .= ($get_options['cpf_group_use']) ? $this->language->lang('GROUP') . $this->language->lang('COLON') . get_group_name($get_options['cpf_group']) . '<br>' : '';
+				$options .= ($get_options['cpf_non_active_period']) ? $this->language->lang('NON_ACTIVE_CPF') . '<br>' : '';
+				$options .= ($get_options['cpf_non_post_period']) ? $this->language->lang('NON_POST_CPF')  . '<br>' : '';
 				$options .= ($row['cpf_field_type'] == 'date') ? $this->language->lang('DATE_TIME') . $this->language->lang('COLON') . $this->get_lang_var('cpf_datetypes', $get_options['cpf_date_type']) : '';
 
 				$this->template->assign_block_vars('cpf_summary', array(
@@ -284,7 +294,7 @@ class acp_manage_controller implements acp_manage_interface
 
 		// Find the group_id for the BOT group
 		$sql = 'SELECT group_id
-			FROM ' . GROUPS_TABLE . "
+			FROM ' . $this->tables['groups'] . "
 			WHERE group_name = '" . $this->db->sql_escape('BOTS') . "'
 				AND group_type = " . GROUP_SPECIAL;
 
@@ -293,10 +303,25 @@ class acp_manage_controller implements acp_manage_interface
 
 		$this->db->sql_freeresult($result);
 
+		// Template vars for header panel
+		$this->template->assign_vars(array(
+			'HEAD_TITLE'		=> $this->language->lang('CPF_AUTOGROUP'),
+			'HEAD_DESCRIPTION'	=> $this->language->lang('CPF_AUTOGROUP_MANAGE_EXPLAIN'),
+
+			'NAMESPACE'			=> $this->functions->get_ext_namespace('twig'),
+
+			'S_BACK'			=> $back,
+			'S_VERSION_CHECK'	=> $this->functions->version_check(),
+
+			'VERSION_NUMBER'	=> $this->functions->get_this_version(),
+		));
+
 		$this->template->assign_vars(array(
 			'CPF_CRON_TIME'				=> $cpf_cron_time,
 			'CPF_CRON_USE'				=> $cpf_cron,
 			'CPF_GROUP_USE'				=> $cpf_group_use,
+			'CPF_NON_ACTIVE_PERIOD'		=> $cpf_non_active_period,
+			'CPF_NON_POST_PERIOD'		=> $cpf_non_post_period,
 			'CPF_USERS'					=> $cpf_users,
 
 			'S_CPF_SELECT'				=> $this->cpf_select($cpf_field_name),
@@ -317,13 +342,15 @@ class acp_manage_controller implements acp_manage_interface
 	*/
 	protected function set_options()
 	{
-		$options 	= array();
+		$options 	= [];
 		$field_type = $this->get_field_type($this->request->variable('cpf_field_name', ''));
 
-		$options['cpf_date_type']	= $this->request->variable('cpf_date_type', '');
-		$options['cpf_group'] 		= $this->request->variable('cpf_group', 0);
-		$options['cpf_group_use'] 	= $this->request->variable('cpf_group_use', 0);
-		$options					= json_encode($options);
+		$options['cpf_date_type']			= $this->request->variable('cpf_date_type', '');
+		$options['cpf_group'] 				= $this->request->variable('cpf_group', 0);
+		$options['cpf_group_use'] 			= $this->request->variable('cpf_group_use', 0);
+		$options['cpf_non_post_period'] 	= $this->request->variable('cpf_non_post_period', 0);
+		$options['cpf_non_active_period'] 	= $this->request->variable('cpf_non_active_period', 0);
+		$options							= json_encode($options);
 
 		$sql = 'INSERT INTO ' . $this->autogroups_cpf_data_table . '(cpf_field_type, cpf_field_name, cpf_event_trigger, cpf_users, cpf_cron, cpf_cron_time, cpf_options)
 				VALUES (
@@ -372,7 +399,7 @@ class acp_manage_controller implements acp_manage_interface
 	protected function cpf_select($field_name)
 	{
 		$sql = 'SELECT pf.field_name, pl.lang_name
-			FROM ' . PROFILE_FIELDS_TABLE . ' pf, ' . PROFILE_LANG_TABLE . ' pl, ' . LANG_TABLE . ' l
+			FROM ' . $this->tables['profile_fields'] . ' pf, ' . $this->tables['profile_lang'] . ' pl, ' . $this->tables['lang'] . ' l
 			WHERE pf.field_id  = pl.field_id
 				AND pl.lang_id = l.lang_id
 				AND pf.field_active = 1
@@ -402,7 +429,7 @@ class acp_manage_controller implements acp_manage_interface
 	public function get_field_type($field_name)
 	{
 		$sql = 'SELECT field_type
-			FROM ' . PROFILE_FIELDS_TABLE . '
+			FROM ' . $this->tables['profile_fields'] . '
 			WHERE field_name = "' . $field_name . '"';
 
 		$result 	= $this->db->sql_query($sql);

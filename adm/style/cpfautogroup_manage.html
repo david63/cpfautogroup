@@ -1,5 +1,4 @@
-{% include 'overall_header.html' %}
-{% include '@david63_cpfautogroup/head_panel.html' %}
+{% include '@' ~ NAMESPACE ~ '/head_panel.html' %}
 
 <form id="cpfautogroup" method="post" action="{{ U_ACTION }}">
 	<fieldset>
@@ -162,6 +161,28 @@
 	    	<dt><label for="cpf_group">{{ lang('CPF_GROUP_SELECT') }}{{ lang('COLON') }}</label><br><span>{{ lang('CPF_GROUP_SELECT_EXPLAIN') }}</span></dt>
 	    	<dd><select id="cpf_group" name="cpf_group">{{ S_GROUP_SELECT }}</select></dd>
 		</dl>
+
+		<hr>
+
+		<dl>
+			<dt><label for="cpf_non_post_period">{{ lang('CPF_NON_POST_PERIOD') }}{{ lang('COLON') }}</label><br><span>{{ lang('CPF_NON_POST_PERIOD_EXPLAIN') }}</span></dt>
+			<dd>
+				<input type="radio" id="cpf_non_post_period1" name="cpf_non_post_period" value="1"{% if CPF_NON_POST_PERIOD %} checked="checked"{% endif %} />
+				<label class="set" for="cpf_non_post_period1">{{ lang('YES') }}</label>
+				<input type="radio" id="cpf_non_post_period0" name="cpf_non_post_period" value="0"{% if not CPF_NON_POST_PERIOD %} checked="checked"{% endif %} />
+				<label class="unset" for="cpf_non_post_period0">{{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="cpf_non_active_period">{{ lang('CPF_NON_ACTIVE_PERIOD') }}{{ lang('COLON') }}</label><br><span>{{ lang('CPF_NON_ACTIVE_PERIOD_EXPLAIN') }}</span></dt>
+			<dd>
+				<input type="radio" id="cpf_non_active_period1" name="cpf_non_active_period" value="1"{% if CPF_NON_ACTIVE_PERIOD %} checked="checked"{% endif %} />
+				<label class="set" for="cpf_non_active_period1">{{ lang('YES') }}</label>
+				<input type="radio" id="cpf_non_active_period0" name="cpf_non_active_period" value="0"{% if not CPF_NON_ACTIVE_PERIOD %} checked="checked"{% endif %} />
+				<label class="unset" for="cpf_non_active_period0">{{ lang('NO') }}</label>
+			</dd>
+		</dl>
 	</fieldset>
 
 	<fieldset>
@@ -174,5 +195,4 @@
 	</fieldset>
 </form>
 
-{% include '@david63_cpfautogroup/donate.html' %}
-{% include 'overall_footer.html' %}
+{% include '@' ~ NAMESPACE ~ '/donate.html' %}

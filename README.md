@@ -2,11 +2,13 @@
 
 Adds CPF functionality for Auto Groups.
 
-[![Build Status](https://travis-ci.com/david63/cpfautogroup.svg?branch=master)](https://travis-ci.com/david63/cpfautogroup)
+[![Build Status](https://github.com/david63/cpfautogroup/workflows/Tests/badge.svg)](https://github.com/phpbb-extensions/david63/cpfautogroup)
 [![License](https://poser.pugx.org/david63/cpfautogroup/license)](https://packagist.org/packages/david63/cpfautogroup)
 [![Latest Stable Version](https://poser.pugx.org/david63/cpfautogroup/v/stable)](https://packagist.org/packages/david63/cpfautogroup)
 [![Latest Unstable Version](https://poser.pugx.org/david63/cpfautogroup/v/unstable)](https://packagist.org/packages/david63/cpfautogroup)
 [![Total Downloads](https://poser.pugx.org/david63/cpfautogroup/downloads)](https://packagist.org/packages/david63/cpfautogroup)
+[![codecov](https://codecov.io/gh/david63/cpfautogroup/branch/master/graph/badge.svg?token=D2500PgRex)](https://codecov.io/gh/david63/cpfautogroup)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/59902be2665c476dbd7951858c9ff769)](https://www.codacy.com/manual/david63/cpfautogroup?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=david63/cpfautogroup&amp;utm_campaign=Badge_Grade)
 
 ## Minimum Requirements
 * phpBB 3.2.0

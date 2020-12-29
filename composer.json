@@ -2,7 +2,7 @@
 	"name": "david63/cpfautogroup",
 	"type": "phpbb-extension",
 	"description": "Adds CPF functionality for Auto Groups.",
-	"version": "2.1.0-rc3",
+	"version": "2.1.0-RC3",
 	"time": "2019-02-01",
 	"keywords": [
 		"phpbb",
@@ -31,8 +31,9 @@
 		},
 		"version-check": {
         	"host": "version.phpbbdev.space",
-        	"directory": "/3.2",
-        	"filename": "/cpf_autogroup_version_file.json"
+        	"directory": "/versions",
+        	"filename": "cpf_autogroup_version_file.json",
+			"ssl": false
     	}
 	}
 }

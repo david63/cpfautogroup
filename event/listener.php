@@ -11,8 +11,7 @@ namespace david63\cpfautogroup\event;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-use david63\cpfautogroup\core\functions;
-use david63\cpfautogroup\core\constants;
+use david63\cpfautogroup\core\cpf_functions;
 use phpbb\autogroups\conditions\manager;
 
 /**
@@ -21,7 +20,10 @@ use phpbb\autogroups\conditions\manager;
 class listener implements EventSubscriberInterface
 {
 	/** @var \david63\cpfautogroup\core\functions */
-	protected $functions;
+	protected $cpf_functions;
+
+	/** @var string custom constants */
+	protected $cpf_constants;
 
 	/** @var \phpbb\autogroups\conditions\manage */
 	protected $autogroup_manager;
@@ -30,14 +32,16 @@ class listener implements EventSubscriberInterface
 	* Constructor for listener
 	*
 	* @param \david63\cpfautogroup\core\functions	functions			Functions for the extension
+	* @param array	                            	$cpf_constants		Constants
 	* @param \phpbb\autogroups\conditions\manage	autogroup_manager	Autogroup manager
 	*
 	* @return \david63\cpfautogroup\event\listener
 	* @access public
 	*/
-	public function __construct(functions $functions, manager $autogroup_manager = null)
+	public function __construct(cpf_functions $cpf_functions, $cpf_constants, manager $autogroup_manager = null)
 	{
-		$this->functions 			= $functions;
+		$this->cpf_functions 		= $cpf_functions;
+		$this->cpf_constants		= $cpf_constants;
 		$this->autogroup_manager 	= $autogroup_manager;
 	}
 
@@ -66,7 +70,7 @@ class listener implements EventSubscriberInterface
 		// This conditional must be used to ensure calls only go out if Auto Groups is installed/enabled
 		if ($this->autogroup_manager !== null)
 		{
-			$event_data	= $this->functions->get_cpf_event_data(constants::CPF_TRIGGER_REG);
+			$event_data	= $this->cpf_functions->get_cpf_event_data($this->cpf_constants['cpf_trigger_reg']);
 			$cpf_user 	= $event['user_id'];
 
 			if ($event_data)
@@ -91,7 +95,7 @@ class listener implements EventSubscriberInterface
 		// This conditional must be used to ensure calls only go out if Auto Groups is installed/enabled
 		if ($this->autogroup_manager !== null)
 		{
-			$event_data		= $this->functions->get_cpf_event_data(constants::CPF_TRIGGER_LOGIN);
+			$event_data		= $this->cpf_functions->get_cpf_event_data($this->cpf_constants['cpf_trigger_login']);
 			$cpf_user 		= '';
 			$session_data 	= $event['session_data'];
 			//$cpf_user 		= $session_data['user_id'];

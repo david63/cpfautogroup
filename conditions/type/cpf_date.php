@@ -96,7 +96,7 @@ class cpf_date extends base
 	 * @return array Array of users ids as keys and their condition data as values
 	 * @access public
 	 */
-	public function get_users_for_condition($options = array())
+	public function get_users_for_condition($options = [])
 	{
 		// The user data this condition needs to check
 		$condition_data = array(
@@ -105,7 +105,7 @@ class cpf_date extends base
 
 		// Merge default options, empty user array as the default
 		$options = array_merge(array(
-			'users'		=> array(),
+			'users'		=> [],
 		), $options);
 
 		$sql_array = array(
@@ -139,7 +139,7 @@ class cpf_date extends base
 		$group_rules = $this->get_group_rules($this->get_condition_type());
 
 		// Initialise some variables that we need
-		$user_data 		= array();
+		$user_data 		= [];
 		$cpf_field 		= 'pf_' . $this->functions->cpf_data_get('cpf_field_name', 'date');
 		$cpf_date_type	= $this->functions->cpf_data_get('cpf_date_type', 'date', true);
 		$min_value 		= $min_calc = 0;
@@ -224,7 +224,7 @@ class cpf_date extends base
 			return $this->db->sql_in_set('u.user_id', $this->helper->prepare_users_for_query($options['users']));
 		}
 
-		$sql_where 	= $group_ids = array();
+		$sql_where 	= $group_ids = [];
 		$extremes 	= array('min' => '>=', 'max' => '<=');
 
 		$cpf_field 		= 'pfd.pf_' . $this->functions->cpf_data_get('cpf_field_name', 'date');
@@ -234,7 +234,7 @@ class cpf_date extends base
 
 		foreach ($group_rules as $group_rule)
 		{
-			$where = array();
+			$where = [];
 			foreach ($extremes as $end => $sign)
 			{
 				if (!empty($group_rule['autogroups_' . $end . '_value']))

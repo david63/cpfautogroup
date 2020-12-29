@@ -1,0 +1,11 @@
+parameters:
+    cpf_constants:
+        cpf_minute: 60
+        cpf_hour: 3600
+        cpf_day: 86400
+        cpf_week: 604800
+        cpf_month: 2629800
+        cpf_year: 31557600
+
+        cpf_trigger_login: 1
+        cpf_trigger_reg: 2

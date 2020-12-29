@@ -4,7 +4,9 @@ services:
         shared: false
         parent: phpbb.autogroups.type.base
         arguments:
-            - '@david63.cpfautogroup.core.functions'
+            - '@david63.cpfautogroup.core.cpf_functions'
+            - '%cpf_constants%'
+            - '%tables%'
         tags:
             - { name: phpbb.autogroups.type }
 
@@ -13,7 +15,8 @@ services:
         shared: false
         parent: phpbb.autogroups.type.base
         arguments:
-            - '@david63.cpfautogroup.core.functions'
+            - '@david63.cpfautogroup.core.cpf_functions'
+            - '%tables%'
         tags:
             - { name: phpbb.autogroups.type }
 
@@ -22,6 +25,7 @@ services:
         shared: false
         parent: phpbb.autogroups.type.base
         arguments:
-            - '@david63.cpfautogroup.core.functions'
+            - '@david63.cpfautogroup.core.cpf_functions'
+            - '%tables%'
         tags:
             - { name: phpbb.autogroups.type }
